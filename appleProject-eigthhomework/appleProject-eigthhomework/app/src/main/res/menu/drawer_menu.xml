@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item android:id="@+id/contact_id"
+            android:title="Contact"
+            android:icon="@drawable/ic_action_contact"
+            app:showAsAction="always"></item>
+        <item android:id="@+id/weather_id"
+            android:title="Weather"
+            android:icon="@drawable/ic_action_weather"
+            app:showAsAction="always"></item>
+        <item android:id="@+id/map_id"
+            android:title="Map"
+            android:icon="@drawable/ic_action_map"
+            app:showAsAction="always"></item>
+        <item android:id="@+id/logout_id"
+            android:title="Log out"
+            android:icon="@drawable/ic_action_logout"
+            app:showAsAction="always"></item>
+    </group>
+
+</menu>

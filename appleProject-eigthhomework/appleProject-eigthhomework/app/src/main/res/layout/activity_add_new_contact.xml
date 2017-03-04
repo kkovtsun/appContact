@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add_new_contact"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context="com.kovtsun.apple.Activity.AddNewContactActivity">
+
+    <include
+        layout="@layout/toolbar_clean_layout"
+        android:id="@+id/toolbar_clean"
+        ></include>
+
+    <Button
+        android:onClick="onClickCancelAddNewContact"
+        android:text="@string/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/btnEditNewContact"
+        android:layout_alignLeft="@+id/editNewContactName"
+        android:layout_alignStart="@+id/editNewContactName"
+        android:id="@+id/btnCatcelEditNewContact" />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editNewContactName"
+        android:layout_marginTop="37dp"
+        android:layout_marginRight="59dp"
+        android:layout_marginEnd="59dp"
+        android:layout_below="@+id/txtNameNewContact"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/txtNameNewContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtAddNewContact"
+        android:textStyle="bold"
+        android:layout_marginTop="123dp"
+        android:layout_below="@+id/toolbar_clean"
+        android:layout_alignRight="@+id/editNewContactName"
+        android:layout_alignEnd="@+id/editNewContactName" />
+
+    <Button
+        android:onClick="onClickAddNewContact"
+        android:text="@string/btnAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="33dp"
+        android:id="@+id/btnEditNewContact"
+        android:layout_below="@+id/editAddNewContatcNumber"
+        android:layout_alignRight="@+id/editAddNewContatcNumber"
+        android:layout_alignEnd="@+id/editAddNewContatcNumber" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:ems="10"
+        android:id="@+id/editAddNewContatcNumber"
+        android:layout_below="@+id/editNewContactName"
+        android:layout_alignLeft="@+id/btnCatcelEditNewContact"
+        android:layout_alignStart="@+id/btnCatcelEditNewContact"
+        android:layout_marginTop="22dp"
+        android:background="@color/colorEdit"
+        android:layout_marginRight="59dp"
+        android:layout_marginEnd="59dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        />
+
+</RelativeLayout>

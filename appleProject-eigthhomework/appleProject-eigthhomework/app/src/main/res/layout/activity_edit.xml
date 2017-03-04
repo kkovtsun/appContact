@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_edit"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context="com.kovtsun.apple.Activity.EditActivity">
+
+    <include
+        layout="@layout/toolbar_clean_layout"
+        android:id="@+id/toolbar_clean"
+        ></include>
+
+    <Button
+        android:onClick="onClickCancelEditContact"
+        android:text="@string/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/btnEditNewContact"
+        android:layout_alignLeft="@+id/editEditContactName"
+        android:layout_alignStart="@+id/editEditContactName"
+        android:id="@+id/btnCatcelEditNewContact" />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editEditContactName"
+        android:layout_marginTop="37dp"
+        android:layout_marginRight="59dp"
+        android:layout_marginEnd="59dp"
+        android:layout_below="@+id/txtEditContact"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/txtEditContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtEditContact"
+        android:textStyle="bold"
+        android:layout_marginTop="123dp"
+        android:layout_below="@+id/toolbar_clean"
+        android:layout_alignRight="@+id/editEditContactName"
+        android:layout_alignEnd="@+id/editEditContactName" />
+
+    <Button
+        android:onClick="onClickEditContact"
+        android:text="@string/btnEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:id="@+id/btnEditNewContact"
+        android:layout_below="@+id/editEditContactNumber"
+        android:layout_alignRight="@+id/editEditContactNumber"
+        android:layout_alignEnd="@+id/editEditContactNumber" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:ems="10"
+        android:id="@+id/editEditContactNumber"
+        android:layout_below="@+id/editEditContactName"
+        android:layout_alignLeft="@+id/btnCatcelEditNewContact"
+        android:layout_alignStart="@+id/btnCatcelEditNewContact"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorEdit"
+        android:layout_marginRight="59dp"
+        android:layout_marginEnd="59dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        />
+
+</RelativeLayout>

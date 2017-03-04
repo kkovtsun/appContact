@@ -1,0 +1,36 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.kovtsun.apple.Fragments.RecycleViewFragment">
+
+    <android.support.v7.widget.RecyclerView android:id="@+id/recycleview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:layout_below="@+id/lintoolbar"
+        android:padding="8dp"
+        android:layout_marginTop="63dp"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            app:fabSize="normal"
+            app:srcCompat="@android:drawable/ic_input_add"
+            android:id="@+id/fab"
+
+            android:clickable="true"
+            android:layout_alignParentBottom="true"
+            />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</FrameLayout>

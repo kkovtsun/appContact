@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context="com.kovtsun.apple.Activity.MainActivity"
+    >
+
+    <include
+        layout="@layout/toolbar_clean_layout"
+        android:id="@+id/toolbar_clean"
+        ></include>
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/editPassword"
+        android:layout_alignBottom="@+id/txtPassword"
+        android:layout_alignLeft="@+id/editLogin"
+        android:layout_alignStart="@+id/editLogin" />
+
+    <Button
+        android:onClick="onClickRegistration"
+        android:text="@string/btnRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnRegister"
+        android:layout_alignBaseline="@+id/btnLogin"
+        android:layout_alignBottom="@+id/btnLogin"
+        android:layout_alignRight="@+id/editPassword"
+        android:layout_alignEnd="@+id/editPassword" />
+
+    <Button
+        android:onClick="onClickLogIn"
+        android:text="@string/btnLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnLogin"
+        android:layout_marginTop="31dp"
+        android:layout_below="@+id/editPassword"
+        android:layout_alignLeft="@+id/editPassword"
+        android:layout_alignStart="@+id/editPassword" />
+
+    <fragment
+        class="com.kovtsun.apple.Fragments.WelcomeFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/welcomeFrag"
+        android:layout_below="@id/toolbar_clean"
+        tools:layout="@layout/fragment_welcome" />
+
+    <TextView
+        android:text="@string/txtPassword"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:id="@+id/txtPassword"
+        android:layout_below="@+id/txtLogin"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/editLogin"
+        android:layout_marginRight="16dp"
+        android:layout_above="@+id/txtPassword"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/txtLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtLogin"
+        android:textStyle="bold"
+        android:layout_marginTop="116dp"
+        tools:textSize="14sp"
+        android:layout_below="@+id/toolbar_clean"
+        android:layout_alignLeft="@+id/txtPassword"
+        android:layout_alignStart="@+id/txtPassword" />
+
+    <com.google.android.gms.common.SignInButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/googleBtn"
+        android:layout_marginTop="18dp"
+        android:layout_below="@+id/btnRegister"
+        android:layout_alignLeft="@+id/btnLogin"
+        android:layout_alignStart="@+id/btnLogin"
+        android:layout_alignRight="@+id/btnRegister"
+        android:layout_alignEnd="@+id/btnRegister"></com.google.android.gms.common.SignInButton>
+
+    <com.facebook.login.widget.LoginButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fb_login_btn"
+        android:text="@string/btnLogin"
+        android:layout_below="@+id/googleBtn"
+        android:layout_alignLeft="@+id/googleBtn"
+        android:layout_alignStart="@+id/googleBtn"
+        android:layout_marginTop="20dp"
+        android:layout_alignRight="@+id/googleBtn"
+        android:layout_alignEnd="@+id/googleBtn" />
+
+
+</RelativeLayout>

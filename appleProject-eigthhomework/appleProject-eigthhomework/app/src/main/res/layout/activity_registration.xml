@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_registration"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context="com.kovtsun.apple.Activity.RegistrationActivity">
+
+    <include
+        layout="@layout/toolbar_clean_layout"
+        android:id="@+id/toolbar_clean"
+        ></include>
+
+    <TextView
+        android:text="@string/txtPassword"
+        android:textStyle="bold"
+        android:layout_marginLeft="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtLoginR"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="48dp"
+        android:id="@+id/txtPasswordR" />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_marginRight="16dp"
+        android:id="@+id/editPasswordR"
+        android:layout_alignBottom="@+id/txtPasswordR"
+        android:layout_alignLeft="@+id/editLoginR"
+        android:layout_alignStart="@+id/editLoginR" />
+
+    <Button
+        android:onClick="onClickCancelR"
+        android:text="@string/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnCancelR"
+        android:layout_alignBaseline="@+id/btnRegisterR"
+        android:layout_alignBottom="@+id/btnRegisterR"
+        android:layout_alignRight="@+id/editPasswordR"
+        android:layout_alignEnd="@+id/editPasswordR" />
+
+    <Button
+        android:onClick="onClickRegistrationR"
+        android:text="@string/btnRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnRegisterR"
+        android:layout_marginTop="18dp"
+        android:layout_marginRight="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_below="@+id/txtRepeatPasswordR"
+        android:layout_toLeftOf="@+id/btnCancelR"
+        android:layout_toStartOf="@+id/btnCancelR" />
+
+    <TextView
+        android:textStyle="bold"
+        android:text="@string/txtRepeatPassword"
+        android:layout_marginLeft="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtRepeatPasswordR"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/txtPasswordR"
+        android:layout_alignRight="@+id/txtPasswordR"
+        android:layout_alignEnd="@+id/txtPasswordR" />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_alignBottom="@+id/txtRepeatPasswordR"
+        android:layout_alignRight="@+id/btnCancelR"
+        android:layout_alignEnd="@+id/btnCancelR"
+        android:id="@+id/editRepeatPasswordR" />
+
+    <TextView
+        android:id="@+id/txtLoginR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtLogin"
+        android:textStyle="bold"
+        android:layout_marginTop="54dp"
+        android:layout_marginLeft="16dp"
+        android:layout_below="@+id/toolbar_clean"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:background="@color/colorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_marginRight="16dp"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/editLoginR"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:layout_alignTop="@+id/txtLoginR"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>
