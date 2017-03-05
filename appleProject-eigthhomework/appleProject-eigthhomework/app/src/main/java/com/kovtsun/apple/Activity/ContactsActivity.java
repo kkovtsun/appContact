@@ -94,7 +94,7 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null){
+                if ((firebaseAuth.getCurrentUser() == null)&&(loginPrefActive =="")&&(passwordPrefActive =="")){
                     startActivity(new Intent(ContactsActivity.this, MainActivity.class));
                     finish();
                 }
