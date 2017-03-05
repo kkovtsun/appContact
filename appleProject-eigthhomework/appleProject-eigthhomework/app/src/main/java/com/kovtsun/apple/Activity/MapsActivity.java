@@ -51,9 +51,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private String loginPrefActive = "", passwordPrefActive = "";
     private NavigationView navigationView = null;
     private FirebaseAuth mAuth;
-    ;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
     private GoogleMap mGoogleMap;
     private GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -63,6 +61,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private MarkersDBHelper markersDBHelper = null;
     private MarkersDBHelper markersDBHelperDelete = null;
     private List<Markers> mList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +87,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-//        markersDBHelper = getHelper(this, MarkersDBHelper.class);
+        // markersDBHelper = getHelper(this, MarkersDBHelper.class);
 //        RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
 //
 //        mList = markersDao.queryForAll();
@@ -131,24 +130,30 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         super.onDestroy();
         if (markersDBHelper != null) {
+            markersDBHelper.close();
             OpenHelperManager.releaseHelper();
             markersDBHelper = null;
         }
+        if (markersDBHelperDelete != null) {
+            markersDBHelperDelete.close();
+            OpenHelperManager.releaseHelper();
+            markersDBHelperDelete = null;
+        }
     }
 
-//    private MarkersDBHelper getHelper() {
-//        if (markersDBHelper == null) {
-//            markersDBHelper = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
-//        }
-//        return markersDBHelper;
-//    }
+    private MarkersDBHelper getHelper() {
+        if (markersDBHelper == null) {
+            markersDBHelper = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
+        }
+        return markersDBHelper;
+    }
 
-//    private MarkersDBHelper getHelperDelete() {
-//        if (markersDBHelperDelete == null) {
-//            markersDBHelperDelete = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
-//        }
-//        return markersDBHelperDelete;
-//    }
+    private MarkersDBHelper getHelperDelete() {
+        if (markersDBHelperDelete == null) {
+            markersDBHelperDelete = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
+        }
+        return markersDBHelperDelete;
+    }
 
     private void initMap() {
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);

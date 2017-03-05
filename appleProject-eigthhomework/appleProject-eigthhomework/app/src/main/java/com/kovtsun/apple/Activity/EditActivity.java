@@ -25,7 +25,6 @@ public class EditActivity extends AppCompatActivity {
     private EditText contact_number_edit;
     private static String messageName = null, messageNumber = null, messageId = null;
     private ContactDBHelper contactDBHelper = null;
-    private List<Contact> fList;
     private int idEdit = 0;
 
     @Override
@@ -96,13 +95,6 @@ public class EditActivity extends AppCompatActivity {
     private void reset(){
         contact_name_edit.setText("");
         contact_number_edit.setText("");
-    }
-
-    private ContactDBHelper getHelper(){
-        if (contactDBHelper == null){
-            contactDBHelper = OpenHelperManager.getHelper(this, ContactDBHelper.class);
-        }
-        return contactDBHelper;
     }
 
     public void onClickCancelEditContact(View view){

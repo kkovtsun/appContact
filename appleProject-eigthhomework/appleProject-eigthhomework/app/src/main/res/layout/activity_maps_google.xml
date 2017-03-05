@@ -7,6 +7,9 @@
     android:background="@color/colorBackground"
     tools:context="com.kovtsun.apple.Activity.MapsActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -14,20 +17,29 @@
             <include
                 android:id="@+id/toolbar"
                 layout="@layout/toolbar_clean_layout"></include>
-
-            <Button
-                android:onClick="onSearch"
-                android:text="@string/search_btn"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/Bsearch"
-                android:layout_gravity="right"/>
-
-            <EditText
-                android:layout_width="290dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/TFaddress" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/sear"
+                android:layout_height="match_parent">
+                <Button
+                    android:onClick="onSearch"
+                    android:text="@string/search_btn"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Bsearch"
+                    android:layout_gravity="right"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+                <EditText
+                    android:layout_width="290dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TFaddress"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_height="match_parent" android:layout_width="match_parent"
@@ -46,6 +58,7 @@
 
             </LinearLayout>
         </LinearLayout>
+    </LinearLayout>
     <android.support.design.widget.NavigationView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -17,10 +17,10 @@
         android:text="@string/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/btnEditNewContact"
+        android:layout_alignTop="@+id/btnDeleteContact"
         android:layout_alignLeft="@+id/editNewContactName"
         android:layout_alignStart="@+id/editNewContactName"
-        android:id="@+id/btnCatcelEditNewContact" />
+        android:id="@+id/btnCatcelDeleteContact" />
 
     <EditText
         android:background="@color/colorEdit"
@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="33dp"
-        android:id="@+id/btnEditNewContact"
+        android:id="@+id/btnDeleteContact"
         android:layout_below="@+id/editAddNewContatcNumber"
         android:layout_alignRight="@+id/editAddNewContatcNumber"
         android:layout_alignEnd="@+id/editAddNewContatcNumber" />
@@ -65,8 +65,8 @@
         android:ems="10"
         android:id="@+id/editAddNewContatcNumber"
         android:layout_below="@+id/editNewContactName"
-        android:layout_alignLeft="@+id/btnCatcelEditNewContact"
-        android:layout_alignStart="@+id/btnCatcelEditNewContact"
+        android:layout_alignLeft="@+id/btnCatcelDeleteContact"
+        android:layout_alignStart="@+id/btnCatcelDeleteContact"
         android:layout_marginTop="22dp"
         android:background="@color/colorEdit"
         android:layout_marginRight="59dp"

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_edit"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context="com.kovtsun.apple.Activity.DeleteActivity">
+
+    <include
+        layout="@layout/toolbar_clean_layout"
+        android:id="@+id/toolbar_clean"
+        ></include>
+
+
+    <Button
+        android:onClick="onClickCancelDeleteContact"
+        android:text="@string/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnCatcelDeleteContact"
+        android:layout_alignBaseline="@+id/btnDeleteContact"
+        android:layout_alignBottom="@+id/btnDeleteContact"
+        android:layout_toLeftOf="@+id/btnDeleteContact"
+        android:layout_toStartOf="@+id/btnDeleteContact"
+        android:layout_marginRight="77dp"
+        android:layout_marginEnd="77dp" />
+
+    <Button
+        android:onClick="onClickDeleteContact"
+        android:text="@string/delete_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnDeleteContact"
+        android:layout_marginRight="45dp"
+        android:layout_marginEnd="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="209dp" />
+
+    <TextView
+        android:text="@string/txt_delete"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:id="@+id/textView"
+        android:layout_above="@+id/btnCatcelDeleteContact"
+        android:layout_alignLeft="@+id/btnCatcelDeleteContact"
+        android:layout_alignStart="@+id/btnCatcelDeleteContact"
+        android:layout_marginLeft="53dp"
+        android:layout_marginStart="53dp" />
+
+
+</RelativeLayout>

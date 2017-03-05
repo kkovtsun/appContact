@@ -12,6 +12,7 @@ import com.kovtsun.apple.DBTables.Contact;
 import com.kovtsun.apple.DBTables.Markers;
 
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ContactDBHelper extends OrmLiteSqliteOpenHelper {
 
@@ -28,11 +29,13 @@ public class ContactDBHelper extends OrmLiteSqliteOpenHelper {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
+
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try{
             TableUtils.createTable(connectionSource, Contact.class);
         }catch (SQLException e){
+
             e.printStackTrace();
         }
     }

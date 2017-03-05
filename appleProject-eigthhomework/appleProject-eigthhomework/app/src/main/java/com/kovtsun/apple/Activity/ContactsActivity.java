@@ -55,18 +55,33 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
     private Toolbar toolbar;
     private boolean is_in_action_mode = false;
     private TextView counter_text_view;
-    private ArrayList<Contact> selection_list = new ArrayList<>();
-    private int counter = 0;
     private static String nameEditIntent = null;
     private static String numberEditIntent = null;
     private static String idEditIntent = null;
+    private static String idDeleteIntent = null;
     private ContactDBHelper contactDBHelper = null;
+    private ContactDBHelper contactDBHelperDelete = null;
     private List<Contact> cList;
     private String loginPrefActive = "", passwordPrefActive = "";
     private NavigationView navigationView = null;
     private int find;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (contactDBHelper != null) {
+            contactDBHelper.close();
+            OpenHelperManager.releaseHelper();
+            contactDBHelper = null;
+        }
+        if (contactDBHelperDelete != null) {
+            contactDBHelperDelete.close();
+            OpenHelperManager.releaseHelper();
+            contactDBHelperDelete = null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +135,6 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
         recyclerView.setAdapter(adapter);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -154,20 +168,11 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
         }
     }
 
-    private ContactDBHelper contactDBHelperDelete = null;
-
     private ContactDBHelper getHelper(){
         if (contactDBHelper == null){
             contactDBHelper = OpenHelperManager.getHelper(this, ContactDBHelper.class);
         }
         return contactDBHelper;
-    }
-
-    private ContactDBHelper getHelperDelete(){
-        if (contactDBHelperDelete == null){
-            contactDBHelperDelete = OpenHelperManager.getHelper(this, ContactDBHelper.class);
-        }
-        return contactDBHelperDelete;
     }
 
     @Override
@@ -184,24 +189,16 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
             Log.i("TAG", String.valueOf(find));
         }
         if (item.getItemId() == 2){
-            RecyclerAdapter recyclerAdapter = (RecyclerAdapter) adapter;
             for (Contact c : cList){
                 if (c.contactId == find){
-                    int idDelete = c.getContactId();
-                    try {
-                        Dao<Contact, Integer> contactDao = getHelperDelete().getDao();
-                        DeleteBuilder<Contact, Integer> deleteBuilder = contactDao.deleteBuilder();
-                        deleteBuilder.where().eq("contact_id", idDelete);
-                        deleteBuilder.delete();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-
-                    }
+                    idDeleteIntent = String.valueOf(c.contactId);
                     break;
                 }
             }
-            recyclerAdapter.updateAdapter(selection_list);
-            recyclerAdapter.notifyDataSetChanged();
+            Intent intentD = new Intent(this, DeleteActivity.class);
+            intentD.putExtra("mIdDelete", idDeleteIntent);
+            startActivity(intentD);
+            this.finish();
         }
         if (item.getItemId() == 1){
             for (Contact c : cList){

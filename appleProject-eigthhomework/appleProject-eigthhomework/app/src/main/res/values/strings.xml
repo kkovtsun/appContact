@@ -35,6 +35,8 @@
     <string name="delete_btn_context">Delete contact</string>
     <string name="options_context">Select Action</string>
     <string name="delete_btn">Delete</string>
+    <string name="txt_delete">Delete a contact?</string>
+    <string name="txt_delete_was_complite">Delete contact was complited!?</string>
     <string name="google_maps_key">AIzaSyD84yVf9Ggr3eiaGua0wiF1vPwvN_zvjNA</string>
 
     <!-- TODO: Remove or change this placeholder text -->
