@@ -87,7 +87,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-        // markersDBHelper = getHelper(this, MarkersDBHelper.class);
+//         markersDBHelper = getHelper(this, MarkersDBHelper.class);
 //        RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
 //
 //        mList = markersDao.queryForAll();
@@ -141,7 +141,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private MarkersDBHelper getHelper() {
+    private MarkersDBHelper getHelper(MapsActivity mapsActivity, Class<MarkersDBHelper> markersDBHelperClass) {
         if (markersDBHelper == null) {
             markersDBHelper = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
         }

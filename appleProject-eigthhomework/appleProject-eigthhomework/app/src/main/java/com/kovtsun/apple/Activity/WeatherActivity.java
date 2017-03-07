@@ -45,7 +45,7 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
         setContentView(R.layout.activity_weather);
 
         imageView = (ImageView) findViewById(R.id.iv_from_url);
-        Picasso.with(getApplicationContext()).load("http://cdn.apixu.com/weather/64x64/day/296.png").into(imageView);
+        //Picasso.with(getApplicationContext()).load("http://cdn.apixu.com/weather/64x64/day/296.png").into(imageView);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_clean_w);
         setSupportActionBar(toolbar);
@@ -132,6 +132,9 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
                 t3.setText(item.getLocation().getLocaltime().toString());
                 t4.setText(item.getCurrent().getTempC().toString() + "°C");
                 t5.setText(item.getCurrent().getTempF().toString() + "F");
+                String s = response.body().getCurrent().getCondition().getIcon();
+                s = "http:"+s;
+                Picasso.with(getApplicationContext()).load(s).into(imageView);
             }
 
             @Override
