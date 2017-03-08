@@ -19,7 +19,7 @@ import com.kovtsun.apple.R;
 import java.sql.SQLException;
 import java.util.List;
 
-public class EditActivity extends AppCompatActivity {
+public class EditContactActivity extends AppCompatActivity {
 
     private EditText contact_name_edit;
     private EditText contact_number_edit;
@@ -72,11 +72,7 @@ public class EditActivity extends AppCompatActivity {
             }catch (SQLException e){
                 e.printStackTrace();
             }
-            CharSequence txt = getString(R.string.editContact);
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast;
-            toast = Toast.makeText(this, txt, duration);
-            toast.show();
+            Toast.makeText(this, R.string.editContact, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, ContactsActivity.class);
             startActivity(intent);
             this.finish();

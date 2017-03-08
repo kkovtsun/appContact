@@ -36,8 +36,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import com.kovtsun.apple.DBHelper.ContactDBHelper;
+import com.kovtsun.apple.DBHelper.HelperFactory;
 import com.kovtsun.apple.DBTables.Contact;
 import com.kovtsun.apple.Interfaces.LongClickListener;
 import com.kovtsun.apple.R;
@@ -72,14 +72,10 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
     protected void onDestroy() {
         super.onDestroy();
         if (contactDBHelper != null) {
-            contactDBHelper.close();
-            OpenHelperManager.releaseHelper();
-            contactDBHelper = null;
+            HelperFactory.releaseHelper();
         }
         if (contactDBHelperDelete != null) {
-            contactDBHelperDelete.close();
-            OpenHelperManager.releaseHelper();
-            contactDBHelperDelete = null;
+            HelperFactory.releaseHelper();
         }
     }
 
@@ -195,7 +191,7 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
                     break;
                 }
             }
-            Intent intentD = new Intent(this, DeleteActivity.class);
+            Intent intentD = new Intent(this, DeleteContactActivity.class);
             intentD.putExtra("mIdDelete", idDeleteIntent);
             startActivity(intentD);
             this.finish();
@@ -209,7 +205,7 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
                     break;
                 }
             }
-            Intent intentE = new Intent(this, EditActivity.class);
+            Intent intentE = new Intent(this, EditContactActivity.class);
             intentE.putExtra("mEditBeforeName", nameEditIntent);
             intentE.putExtra("mEditBeforeNumber", numberEditIntent);
             intentE.putExtra("mIdEdit", idEditIntent);
@@ -272,12 +268,7 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
                 editorActive.putString("password", "");
                 editorActive.apply();
 
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast;
-                CharSequence textError = getString(R.string.logOut);
-                toast = Toast.makeText(this, textError, duration);
-                toast.show();
-
+                Toast.makeText(this, R.string.logOut, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 this.finish();
@@ -312,12 +303,10 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
             String phoneNumber = "null";
             String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            Log.i("MY_INFO", id + " = " + name);
             contact.contactName = name;
             Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
             while (phoneCursor.moveToNext()) {
                 phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                Log.i("MY_INFO", phoneNumber);
                 break;
             }
             contact.contactNumber = phoneNumber;

@@ -35,7 +35,6 @@ public class ContactDBHelper extends OrmLiteSqliteOpenHelper {
         try{
             TableUtils.createTable(connectionSource, Contact.class);
         }catch (SQLException e){
-
             e.printStackTrace();
         }
     }

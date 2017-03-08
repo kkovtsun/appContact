@@ -15,7 +15,7 @@ import com.kovtsun.apple.DBHelper.HelperFactory;
 import com.kovtsun.apple.DBTables.Contact;
 import com.kovtsun.apple.R;
 
-public class DeleteActivity extends AppCompatActivity {
+public class DeleteContactActivity extends AppCompatActivity {
 
     private static String messageId = null;
     private ContactDBHelper contactDBHelperDelete = null;
@@ -52,11 +52,7 @@ public class DeleteActivity extends AppCompatActivity {
             } catch (java.sql.SQLException e) {
                 e.printStackTrace();
             }
-            CharSequence txt = getString(R.string.txt_delete_was_complite);
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast;
-            toast = Toast.makeText(this, txt, duration);
-            toast.show();
+            Toast.makeText(this, R.string.txt_delete_was_complite, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, ContactsActivity.class);
             startActivity(intent);
             this.finish();

@@ -36,7 +36,6 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
     private NavigationView navigationView = null;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
     private ImageView imageView;
 
     @Override
@@ -45,7 +44,6 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
         setContentView(R.layout.activity_weather);
 
         imageView = (ImageView) findViewById(R.id.iv_from_url);
-        //Picasso.with(getApplicationContext()).load("http://cdn.apixu.com/weather/64x64/day/296.png").into(imageView);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_clean_w);
         setSupportActionBar(toolbar);
@@ -126,7 +124,6 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
                 int code = response.code();
                 Log.i("MyW", String.valueOf(code));
                 Example item = response.body();
-                String a, a1,a2;
                 t1.setText(item.getLocation().getName());
                 t2.setText(item.getLocation().getCountry());
                 t3.setText(item.getLocation().getLocaltime().toString());

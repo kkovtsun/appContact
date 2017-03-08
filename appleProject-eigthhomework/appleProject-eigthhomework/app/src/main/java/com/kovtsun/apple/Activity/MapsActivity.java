@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.SQLException;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -38,7 +39,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.kovtsun.apple.DBHelper.MarkersDBHelper;
+import com.kovtsun.apple.DBHelper.MarkersHelperFactory;
 import com.kovtsun.apple.DBTables.Markers;
 import com.kovtsun.apple.R;
 
@@ -54,7 +59,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleMap mGoogleMap;
     private GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
+    private LocationRequest mLocationRequest;
     private EditText location_tf;
     private Marker marker;
 
@@ -68,7 +73,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps_google);
         if (googleServicesAvailable()) {
-            Log.i("TAG", "perfect");
             initMap();
         }
         location_tf = (EditText) findViewById(R.id.TFaddress);
@@ -86,15 +90,13 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         };
+        markersDBHelper = new MarkersDBHelper(MapsActivity.this);
+        RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
 
-//         markersDBHelper = getHelper(this, MarkersDBHelper.class);
-//        RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
-//
-//        mList = markersDao.queryForAll();
-//        if (mList.size() == 0){
-//            Log.i("TAG","base 0");
-//        }
-//        OpenHelperManager.releaseHelper();
+        mList = markersDao.queryForAll();
+        if (mList.size() == 0){
+            Log.i("TAG","base 0");
+        }
     }
 
     public void onSearch(View view) {
@@ -130,29 +132,11 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         super.onDestroy();
         if (markersDBHelper != null) {
-            markersDBHelper.close();
-            OpenHelperManager.releaseHelper();
-            markersDBHelper = null;
+            MarkersHelperFactory.releaseHelper();
         }
         if (markersDBHelperDelete != null) {
-            markersDBHelperDelete.close();
-            OpenHelperManager.releaseHelper();
-            markersDBHelperDelete = null;
+            MarkersHelperFactory.releaseHelper();
         }
-    }
-
-    private MarkersDBHelper getHelper(MapsActivity mapsActivity, Class<MarkersDBHelper> markersDBHelperClass) {
-        if (markersDBHelper == null) {
-            markersDBHelper = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
-        }
-        return markersDBHelper;
-    }
-
-    private MarkersDBHelper getHelperDelete() {
-        if (markersDBHelperDelete == null) {
-            markersDBHelperDelete = OpenHelperManager.getHelper(this, MarkersDBHelper.class);
-        }
-        return markersDBHelperDelete;
     }
 
     private void initMap() {
@@ -195,7 +179,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
         mGoogleApiClient.connect();
         mGoogleMap.setMyLocationEnabled(true);
-        String location = "Chernivtsy";
+        String location = "Chernivtsi";
         List<Address> addressList = null;
         Geocoder geocoder = new Geocoder(this);
         try {
@@ -213,33 +197,43 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-//            if (mList.size() != 0){
-//                for (Markers m: mList){
-//                    double lat = marker.getPosition().latitude;
-//                    double lng = marker.getPosition().longitude;
-//                    LatLng l = new LatLng(lat, lng);
-//                    String t = m.markersTitle.toString();
-//                    setMarker(t, l);
-//                }
-//            }
+
         if (mGoogleMap != null) {
             mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-//                    String lat = String.valueOf(marker.getPosition().latitude);
-//                    String lng = String.valueOf(marker.getPosition().longitude);for (Markers m: mList){
-//                        if ((m.markersLat.equals(lat))&&(m.markersLng.equals(lng))){
-////                            try {
-////                                Dao<Markers, Integer> markersDao = getHelperDelete().getDao();
-////                                DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
-////                                deleteBuilder.where().eq("markers_id", m.markersId);
-////                                deleteBuilder.delete();
-////                            } catch (SQLException e) {
-////                                e.printStackTrace();
-////
-////                            }
-//                        }
-//                    }
+                    Geocoder geocoder =  new Geocoder(MapsActivity.this);
+                    LatLng ll = marker.getPosition();
+                    List<Address> addressList = null;
+                    try {
+                        addressList = geocoder.getFromLocation(ll.latitude, ll.longitude, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Address address = addressList.get(0);
+                    String localy = address.getLocality();
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    String title = address.getThoroughfare();
+                    Markers m = new Markers();
+                    m.markersLat = String.valueOf(marker.getPosition().latitude);
+                    m.markersLng = String.valueOf(marker.getPosition().longitude);
+                    m.markersTitle = address.getThoroughfare();
+                    try {
+                        final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+                        DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
+                        deleteBuilder.where().eq("markers_title", title);
+                        deleteBuilder.delete();
+                        Log.i("TAG", "delete");
+                        CharSequence txt = getString(R.string.deleteMarker);
+                        Toast.makeText(MapsActivity.this, txt, Toast.LENGTH_SHORT).show();
+                    } catch (java.sql.SQLException e) {
+                        e.printStackTrace();
+                    }
+                    int i = 0;
+                    for (Markers mi: mList){
+                        i++;
+                        Log.i("TAG", i+"  "+mi.markersLat);
+                    }
                     marker.remove();
                     return true;
                 }
@@ -250,7 +244,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onMapClick(LatLng latLng) {
                 mGoogleMap.addMarker(new MarkerOptions().position(latLng).title("Chernivtsi"));
-//                final Markers markers = new Markers();
                 Geocoder geocoder =  new Geocoder(MapsActivity.this);
                 LatLng ll = marker.getPosition();
                 List<Address> addressList = null;
@@ -260,16 +253,32 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                     e.printStackTrace();
                 }
                 Address address = addressList.get(0);
-//                markers.markersTitle = address.getLocality().toString();
-//                markers.markersLat = String.valueOf(ll.latitude);
-//                markers.markersLng = String.valueOf(ll.longitude);
-////                try{
-////                    final Dao<Markers, Integer> fruitDao = getHelper().getDao();
-////                    fruitDao.create(markers);
-////                }catch (SQLException e){
-////                        e.printStackTrace();
-////                }
                 setMarker(address.getLocality(), ll);
+                final Markers markers = new Markers();
+                markers.markersTitle = address.getThoroughfare();
+                markers.markersLat = String.valueOf(ll.latitude);
+                markers.markersLng = String.valueOf(ll.longitude);
+                try{
+                    final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+                    Log.i("TAG", "add");
+                    Toast.makeText(MapsActivity.this, R.string.newMarkerAdd, Toast.LENGTH_SHORT).show();
+                    markersDao.create(markers);
+                    mList.add(markers);
+                } catch (java.sql.SQLException e) {
+                    e.printStackTrace();
+                }
+                goToLocationZoom(ll, 5);
+                if (mList.size() != 0){
+                    for (Markers m: mList){
+                        double lat = Double.parseDouble(m.markersLat);
+                        double lng = Double.parseDouble(m.markersLng);
+                        LatLng l = new LatLng(lat, lng);
+                        String t = m.markersTitle;
+                        MarkerOptions options = new MarkerOptions().title(t).position(l);
+                        marker = mGoogleMap.addMarker(options);
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+                    }
+                }
             }
         });
     }

@@ -16,7 +16,7 @@ public class MarkersDBHelper extends OrmLiteSqliteOpenHelper{
 
     private  static  final String TAG = MarkersDBHelper.class.getSimpleName();
     private static final String DB_NAME = "markers";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     private Dao<Markers, Integer> markersDao = null;
 

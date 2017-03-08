@@ -62,11 +62,7 @@ public class AddNewContactActivity extends AppCompatActivity {
             }catch (SQLException e){
                 e.printStackTrace();
             }
-            CharSequence txt = getString(R.string.newContactAdd);
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast;
-            toast = Toast.makeText(this, txt, duration);
-            toast.show();
+            Toast.makeText(this, R.string.newContactAdd, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, ContactsActivity.class);
             startActivity(intent);
             this.finish();

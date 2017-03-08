@@ -191,9 +191,7 @@ public class MainActivity extends AppCompatActivity {
         String passwordPref = sharedPref.getString("password", "");
 
         if ((l.equals(""))||(p.equals(""))){
-            CharSequence textError = getString(R.string.inputData);
-            toast = Toast.makeText(MainActivity.this, textError, duration);
-            toast.show();
+            Toast.makeText(MainActivity.this, R.string.inputData, Toast.LENGTH_SHORT).show();
         }else {
             if ((l.equals(sLogin)&&(p.equals(sPassword)))||(l.equals(loginPref)&&(p.equals(passwordPref)))){
 
@@ -206,9 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ContactsActivity.class));
                 this.finish();
             }else{
-                CharSequence textError2 =  getString(R.string.invalidData);
-                toast = Toast.makeText(MainActivity.this, textError2, duration);
-                toast.show();
+                Toast.makeText(MainActivity.this, R.string.invalidData, Toast.LENGTH_SHORT).show();
             }
         }
     }

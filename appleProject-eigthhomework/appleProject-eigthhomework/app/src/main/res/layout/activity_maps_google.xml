@@ -21,6 +21,26 @@
                 android:layout_width="match_parent"
                 android:id="@+id/sear"
                 android:layout_height="match_parent">
+
+                <EditText
+                    android:layout_width="290dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TFaddress"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+                <Button
+                    android:onClick="onAddMarker"
+                    android:text="@string/btnAdd"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/Bsearch"
+                    android:id="@+id/Badd"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
                 <Button
                     android:onClick="onSearch"
                     android:text="@string/search_btn"
@@ -32,13 +52,6 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true" />
-                <EditText
-                    android:layout_width="290dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/TFaddress"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
             </RelativeLayout>
 
             <LinearLayout

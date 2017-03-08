@@ -44,7 +44,7 @@
 
         <activity android:name=".Activity.ContactsActivity" />
         <activity android:name=".Activity.AddNewContactActivity" />
-        <activity android:name=".Activity.EditActivity" />
+        <activity android:name=".Activity.EditContactActivity" />
         <activity android:name=".Activity.WeatherActivity" />
         <activity android:name=".Activity.RegistrationActivity" />
 
@@ -62,7 +62,7 @@
         <activity
             android:name=".Activity.MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".Activity.DeleteActivity"></activity>
+        <activity android:name=".Activity.DeleteContactActivity"></activity>
     </application>
 
 </manifest>

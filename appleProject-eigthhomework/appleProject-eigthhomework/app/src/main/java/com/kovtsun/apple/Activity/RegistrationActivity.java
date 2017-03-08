@@ -44,15 +44,10 @@ public class RegistrationActivity extends AppCompatActivity {
         Toast toast;
 
         if (l.equals("")||(p.equals(""))){
-            CharSequence textError = getString(R.string.inputData);
-            toast = Toast.makeText(this, textError, duration);
-            toast.show();
+            Toast.makeText(this, R.string.inputData, Toast.LENGTH_SHORT).show();
         }else {
             if (!p.equals(rp)){
-                CharSequence textError2 = getString(R.string.passwordsDoNotMatch);
-                toast = Toast.makeText(this, textError2, duration);
-                toast.show();
-
+                Toast.makeText(this, R.string.passwordsDoNotMatch, Toast.LENGTH_SHORT).show();
             }else {
                 SharedPreferences sharedPrefActive  = getSharedPreferences("userInfoActive", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editorActive = sharedPrefActive.edit();
@@ -66,9 +61,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 editor.putString("password", p);
                 editor.apply();
 
-                CharSequence textComplite = getString(R.string.txtRegistrationComplite);
-                toast = Toast.makeText(this, textComplite, duration);
-                toast.show();
+                Toast.makeText(this, R.string.txtRegistrationComplite, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(this, ContactsActivity.class);
                 startActivity(intent);
