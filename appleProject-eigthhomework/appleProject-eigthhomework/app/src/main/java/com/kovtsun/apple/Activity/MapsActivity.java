@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -327,8 +328,8 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                 this.finish();
             } else {
                 mAuth.signOut();
+                LoginManager.getInstance().logOut();
                 this.finish();
-                //FirebaseAuth.getInstance().signOut();
             }
         }
         return true;

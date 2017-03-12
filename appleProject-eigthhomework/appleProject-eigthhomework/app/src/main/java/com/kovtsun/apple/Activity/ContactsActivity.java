@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
@@ -275,8 +276,8 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
             }
             else {
                 mAuth.signOut();
+                LoginManager.getInstance().logOut();
                 this.finish();
-//                FirebaseAuth.getInstance().signOut();
             }
         }
         return true;

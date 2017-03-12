@@ -1,11 +1,16 @@
 package com.kovtsun.apple.Activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -15,9 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kovtsun.apple.ApiServices.ApiClient;
 import com.kovtsun.apple.ApiServices.ApiInterface;
+import com.kovtsun.apple.MyLocationListener;
 import com.kovtsun.apple.R;
 import com.kovtsun.apple.WeatherGson.Example;
 import com.squareup.picasso.Picasso;
@@ -29,19 +36,31 @@ import retrofit2.Response;
 public class WeatherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private TextView t1, t2, t3, t4, t5;
     private Toolbar toolbar;
-    private final static  String key = "4eea53de339c44399f8181049171302";
-    private final static  String q = "Chernivtsi";
+    private final static String key = "4eea53de339c44399f8181049171302";
 
     private String loginPrefActive = "", passwordPrefActive = "";
     private NavigationView navigationView = null;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private ImageView imageView;
+    private String myLocation;
+    private LocationManager myLocationManager;
+    private MyLocationListener locationListener;
+    private static Location imHereLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        locationListener = new MyLocationListener();
+        myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        imHereLocation = myLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        myLocation = imHereLocation.getLatitude() + "," + imHereLocation.getLongitude();
 
         imageView = (ImageView) findViewById(R.id.iv_from_url);
 
@@ -61,13 +80,12 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null){
+                if (firebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(WeatherActivity.this, MainActivity.class));
                     finish();
                 }
             }
         };
-
 
         new AsynkWeater().execute();
     }
@@ -107,8 +125,8 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
             }
             else {
                 mAuth.signOut();
+                LoginManager.getInstance().logOut();
                 this.finish();
-                //FirebaseAuth.getInstance().signOut();
             }
         }
         return true;
@@ -117,7 +135,7 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
     public void getData() {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
 
-        Call<Example> call = apiService.getCurrentWeather(key, q);
+        Call<Example> call = apiService.getCurrentWeather(key, myLocation);
         call.enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Call<Example> call, Response<Example> response) {
