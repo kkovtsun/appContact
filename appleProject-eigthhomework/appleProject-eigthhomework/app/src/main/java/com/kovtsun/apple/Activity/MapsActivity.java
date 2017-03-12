@@ -1,14 +1,15 @@
 package com.kovtsun.apple.Activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.SQLException;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -39,19 +40,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.kovtsun.apple.DBHelper.MarkersDBHelper;
 import com.kovtsun.apple.DBHelper.MarkersHelperFactory;
 import com.kovtsun.apple.DBTables.Markers;
+import com.kovtsun.apple.Interfaces.MyLocationListener;
 import com.kovtsun.apple.R;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.j256.ormlite.android.apptools.OpenHelperManager.getHelper;
 
 public class MapsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, LocationListener, GoogleApiClient.OnConnectionFailedListener {
     private String loginPrefActive = "", passwordPrefActive = "";
@@ -68,11 +67,23 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private MarkersDBHelper markersDBHelperDelete = null;
     private List<Markers> mList;
 
+    private LocationManager myLocationManager;
+    private MyLocationListener locationListener;
+    private static Location imHereLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps_google);
+
+        locationListener = new MyLocationListener();
+        myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        imHereLocation = myLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
         if (googleServicesAvailable()) {
             initMap();
         }
@@ -95,68 +106,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
 
         mList = markersDao.queryForAll();
-        if (mList.size() == 0){
-            Log.i("TAG","base 0");
-        }
-    }
-
-    public void onSearch(View view) {
-        String location = location_tf.getText().toString();
-        List<Address> addressList = null;
-        if (location != null || location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
-            try {
-                addressList = geocoder.getFromLocationName(location, 1);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Address address = addressList.get(0);
-            String localy = address.getLocality();
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            MarkerOptions options = new MarkerOptions().title(localy).position(latLng);
-            marker = mGoogleMap.addMarker(options);
-            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        } else {
-            goToLocation(new LatLng(0, 0));
-        }
-    }
-
-    private void setMarker(String localy, LatLng latLng) {
-        if(marker != null){
-            marker.remove();
-        }
-        marker = mGoogleMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(localy).draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (markersDBHelper != null) {
-            MarkersHelperFactory.releaseHelper();
-        }
-        if (markersDBHelperDelete != null) {
-            MarkersHelperFactory.releaseHelper();
-        }
-    }
-
-    private void initMap() {
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
-    }
-
-    public boolean googleServicesAvailable() {
-        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
-        int isAvailable = api.isGooglePlayServicesAvailable(this);
-        if (isAvailable == ConnectionResult.SUCCESS) {
-            return true;
-        } else if (api.isUserResolvableError(isAvailable)) {
-            Dialog dialog = api.getErrorDialog(this, isAvailable, 0);
-            dialog.show();
-        } else {
-            Log.i("TAG", "bed");
-        }
-        return false;
     }
 
     @Override
@@ -180,20 +129,25 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
         mGoogleApiClient.connect();
         mGoogleMap.setMyLocationEnabled(true);
-        String location = "Chernivtsi";
-        List<Address> addressList = null;
-        Geocoder geocoder = new Geocoder(this);
-        try {
-            addressList = geocoder.getFromLocationName(location, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Address address = addressList.get(0);
-        String localy = address.getLocality();
-        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-        MarkerOptions options = new MarkerOptions().title(localy).position(latLng).snippet("New location!");
+        mGoogleMap.setTrafficEnabled(true);
+        mGoogleMap.setIndoorEnabled(true);
+        mGoogleMap.setBuildingsEnabled(true);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+        mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
+        LatLng latLng = new LatLng(imHereLocation.getLatitude(), imHereLocation.getLongitude());
+        MarkerOptions options = new MarkerOptions().position(latLng);
         marker = mGoogleMap.addMarker(options);
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+        if (mList.size() != 0){
+            for (Markers m: mList){
+                double lat = m.markersLat;
+                double lng = m.markersLng;
+                LatLng l = new LatLng(lat, lng);
+                MarkerOptions ooptions = new MarkerOptions().position(l);
+                marker = mGoogleMap.addMarker(ooptions);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+            }
+        }
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -212,28 +166,20 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                         e.printStackTrace();
                     }
                     Address address = addressList.get(0);
-                    String localy = address.getLocality();
-                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                    String title = address.getThoroughfare();
                     Markers m = new Markers();
-                    m.markersLat = String.valueOf(marker.getPosition().latitude);
-                    m.markersLng = String.valueOf(marker.getPosition().longitude);
+                    double l1 = marker.getPosition().latitude;
+                    double l2 = marker.getPosition().longitude;
                     m.markersTitle = address.getThoroughfare();
                     try {
                         final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
                         DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
-                        deleteBuilder.where().eq("markers_title", title);
+                        deleteBuilder.where().eq("markers_lat", l1);
+                        deleteBuilder.where().eq("markers_lng", l2);
                         deleteBuilder.delete();
                         Log.i("TAG", "delete");
-                        CharSequence txt = getString(R.string.deleteMarker);
-                        Toast.makeText(MapsActivity.this, txt, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MapsActivity.this, getString(R.string.deleteMarker), Toast.LENGTH_SHORT).show();
                     } catch (java.sql.SQLException e) {
                         e.printStackTrace();
-                    }
-                    int i = 0;
-                    for (Markers mi: mList){
-                        i++;
-                        Log.i("TAG", i+"  "+mi.markersLat);
                     }
                     marker.remove();
                     return true;
@@ -244,7 +190,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                mGoogleMap.addMarker(new MarkerOptions().position(latLng).title("Chernivtsi"));
+                mGoogleMap.addMarker(new MarkerOptions().position(latLng));
                 Geocoder geocoder =  new Geocoder(MapsActivity.this);
                 LatLng ll = marker.getPosition();
                 List<Address> addressList = null;
@@ -256,12 +202,11 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                 Address address = addressList.get(0);
                 setMarker(address.getLocality(), ll);
                 final Markers markers = new Markers();
-                markers.markersTitle = address.getThoroughfare();
-                markers.markersLat = String.valueOf(ll.latitude);
-                markers.markersLng = String.valueOf(ll.longitude);
+                markers.markersTitle = address.getLocality();
+                markers.markersLat = ll.latitude;
+                markers.markersLng = ll.longitude;
                 try{
                     final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
-                    Log.i("TAG", "add");
                     Toast.makeText(MapsActivity.this, R.string.newMarkerAdd, Toast.LENGTH_SHORT).show();
                     markersDao.create(markers);
                     mList.add(markers);
@@ -269,17 +214,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                     e.printStackTrace();
                 }
                 goToLocationZoom(ll, 5);
-                if (mList.size() != 0){
-                    for (Markers m: mList){
-                        double lat = Double.parseDouble(m.markersLat);
-                        double lng = Double.parseDouble(m.markersLng);
-                        LatLng l = new LatLng(lat, lng);
-                        String t = m.markersTitle;
-                        MarkerOptions options = new MarkerOptions().title(t).position(l);
-                        marker = mGoogleMap.addMarker(options);
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-                    }
-                }
             }
         });
     }
@@ -335,7 +269,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = LocationRequest.create();
@@ -361,11 +294,69 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 5);
             mGoogleMap.animateCamera(update);
         }
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    public void onSearch(View view) {
+        String location = location_tf.getText().toString();
+        List<Address> addressList = null;
+        if (location.equals("")){
+            Toast.makeText(MapsActivity.this, getString(R.string.nullSearch), Toast.LENGTH_SHORT).show();
+        }else{
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Address address = addressList.get(0);
+            String localy = address.getLocality();
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+            MarkerOptions options = new MarkerOptions().title(localy).position(latLng);
+            marker = mGoogleMap.addMarker(options);
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+        }
+    }
+
+    private void setMarker(String localy, LatLng latLng) {
+        if(marker != null){
+            marker.remove();
+        }
+        marker = mGoogleMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(localy).draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (markersDBHelper != null) {
+            MarkersHelperFactory.releaseHelper();
+        }
+        if (markersDBHelperDelete != null) {
+            MarkersHelperFactory.releaseHelper();
+        }
+    }
+
+    private void initMap() {
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
+    }
+
+    public boolean googleServicesAvailable() {
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        int isAvailable = api.isGooglePlayServicesAvailable(this);
+        if (isAvailable == ConnectionResult.SUCCESS) {
+            return true;
+        } else if (api.isUserResolvableError(isAvailable)) {
+            Dialog dialog = api.getErrorDialog(this, isAvailable, 0);
+            dialog.show();
+        } else {
+            Log.i("TAG", "bed");
+        }
+        return false;
     }
 }

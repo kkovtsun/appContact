@@ -1,4 +1,4 @@
-package com.kovtsun.apple;
+package com.kovtsun.apple.Interfaces;
 
 import android.content.Context;
 import android.content.SharedPreferences;

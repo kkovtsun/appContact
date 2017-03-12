@@ -24,7 +24,7 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kovtsun.apple.ApiServices.ApiClient;
 import com.kovtsun.apple.ApiServices.ApiInterface;
-import com.kovtsun.apple.MyLocationListener;
+import com.kovtsun.apple.Interfaces.MyLocationListener;
 import com.kovtsun.apple.R;
 import com.kovtsun.apple.WeatherGson.Example;
 import com.squareup.picasso.Picasso;

@@ -13,10 +13,10 @@ public class Markers implements Serializable {
     public String markersTitle = "";
 
     @DatabaseField(columnName = "markers_lat")
-    public String markersLat = "";
+    public double markersLat;
 
     @DatabaseField(columnName = "markers_lng")
-    public String markersLng = "";
+    public double markersLng;
 
     @Override
     public String toString() {
@@ -25,19 +25,27 @@ public class Markers implements Serializable {
 
     public Markers() {}
 
-    public String getMarkersLat() {
+    public int getMarkersId() {
+        return markersId;
+    }
+
+    public void setMarkersId(int markersId) {
+        this.markersId = markersId;
+    }
+
+    public double getMarkersLat() {
         return markersLat;
     }
 
-    public void setMarkersLat(String markersLat) {
+    public void setMarkersLat(double markersLat) {
         this.markersLat = markersLat;
     }
 
-    public String getMarkersLng() {
+    public double getMarkersLng() {
         return markersLng;
     }
 
-    public void setMarkersLng(String markersLng) {
+    public void setMarkersLng(double markersLng) {
         this.markersLng = markersLng;
     }
 
@@ -49,7 +57,7 @@ public class Markers implements Serializable {
         this.markersTitle = markersTitle;
     }
 
-    public Markers(String markersLat, String markersLng, String markersTitle) {
+    public Markers(double markersLat, double markersLng, String markersTitle) {
         this.markersLat = markersLat;
         this.markersLng = markersLng;
         this.markersTitle = markersTitle;

@@ -41,6 +41,7 @@ import com.kovtsun.apple.DBHelper.ContactDBHelper;
 import com.kovtsun.apple.DBHelper.HelperFactory;
 import com.kovtsun.apple.DBTables.Contact;
 import com.kovtsun.apple.Interfaces.LongClickListener;
+import com.kovtsun.apple.Activity.MapsActivity;
 import com.kovtsun.apple.R;
 
 import java.sql.SQLException;

@@ -7,20 +7,20 @@
     android:background="@color/colorBackground"
     tools:context="com.kovtsun.apple.Activity.MapsActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        android:layout_height="match_parent">
             <include
                 android:id="@+id/toolbar"
                 layout="@layout/toolbar_clean_layout"></include>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:id="@+id/sear"
-                android:layout_height="match_parent">
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="8dp"
+                android:layout_below="@id/toolbar"
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:layout_width="290dp"
@@ -43,13 +43,14 @@
                     android:layout_alignParentEnd="true" />
             </RelativeLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_height="match_parent" android:layout_width="match_parent"
                 android:orientation="vertical"
-                android:paddingBottom="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_below="@id/sear"
+                android:paddingTop="5dp"
                 tools:context=".Activity.MapsActivity">
 
                 <fragment
@@ -58,9 +59,8 @@
                     android:name="com.google.android.gms.maps.MapFragment"
                     android:id="@+id/mapFragment"></fragment>
 
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+            </RelativeLayout>
+    </RelativeLayout>
     <android.support.design.widget.NavigationView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
