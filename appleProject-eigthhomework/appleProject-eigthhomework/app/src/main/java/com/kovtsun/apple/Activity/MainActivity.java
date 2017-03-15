@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "errorFacebook");
             }
         });
-
     }
 
     private  void handleFacebookAccessToken(AccessToken token){
