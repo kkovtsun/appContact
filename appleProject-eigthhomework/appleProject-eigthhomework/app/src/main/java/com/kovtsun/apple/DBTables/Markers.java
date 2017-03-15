@@ -62,4 +62,6 @@ public class Markers implements Serializable {
         this.markersLng = markersLng;
         this.markersTitle = markersTitle;
     }
+
+
 }

@@ -62,11 +62,9 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private LocationRequest mLocationRequest;
     private EditText location_tf;
     private Marker marker;
-
     private MarkersDBHelper markersDBHelper = null;
     private MarkersDBHelper markersDBHelperDelete = null;
     private List<Markers> mList;
-
     private LocationManager myLocationManager;
     private MyLocationListener locationListener;
     private static Location imHereLocation;
@@ -128,26 +126,13 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         });
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
         mGoogleApiClient.connect();
-        mGoogleMap.setMyLocationEnabled(true);
-        mGoogleMap.setTrafficEnabled(true);
-        mGoogleMap.setIndoorEnabled(true);
-        mGoogleMap.setBuildingsEnabled(true);
-        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
-        mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
+        mapSettings(mGoogleMap);
         LatLng latLng = new LatLng(imHereLocation.getLatitude(), imHereLocation.getLongitude());
         MarkerOptions options = new MarkerOptions().position(latLng);
         marker = mGoogleMap.addMarker(options);
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        if (mList.size() != 0){
-            for (Markers m: mList){
-                double lat = m.markersLat;
-                double lng = m.markersLng;
-                LatLng l = new LatLng(lat, lng);
-                MarkerOptions ooptions = new MarkerOptions().position(l);
-                marker = mGoogleMap.addMarker(ooptions);
-                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-            }
-        }
+
+        getMarkersFromDB(mList, marker, mGoogleMap);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -157,7 +142,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    Geocoder geocoder =  new Geocoder(MapsActivity.this);
+                    Geocoder geocoder = new Geocoder(MapsActivity.this);
                     LatLng ll = marker.getPosition();
                     List<Address> addressList = null;
                     try {
@@ -166,21 +151,9 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                         e.printStackTrace();
                     }
                     Address address = addressList.get(0);
-                    Markers m = new Markers();
                     double l1 = marker.getPosition().latitude;
                     double l2 = marker.getPosition().longitude;
-                    m.markersTitle = address.getThoroughfare();
-                    try {
-                        final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
-                        DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
-                        deleteBuilder.where().eq("markers_lat", l1);
-                        deleteBuilder.where().eq("markers_lng", l2);
-                        deleteBuilder.delete();
-                        Log.i("TAG", "delete");
-                        Toast.makeText(MapsActivity.this, getString(R.string.deleteMarker), Toast.LENGTH_SHORT).show();
-                    } catch (java.sql.SQLException e) {
-                        e.printStackTrace();
-                    }
+                    deleteMarker(markersDBHelper, l1, l2);
                     marker.remove();
                     return true;
                 }
@@ -191,7 +164,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onMapClick(LatLng latLng) {
                 mGoogleMap.addMarker(new MarkerOptions().position(latLng));
-                Geocoder geocoder =  new Geocoder(MapsActivity.this);
+                Geocoder geocoder = new Geocoder(MapsActivity.this);
                 LatLng ll = marker.getPosition();
                 List<Address> addressList = null;
                 try {
@@ -201,26 +174,67 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                 }
                 Address address = addressList.get(0);
                 setMarker(address.getLocality(), ll);
-                final Markers markers = new Markers();
-                markers.markersTitle = address.getLocality();
-                markers.markersLat = ll.latitude;
-                markers.markersLng = ll.longitude;
-                try{
-                    final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
-                    Toast.makeText(MapsActivity.this, R.string.newMarkerAdd, Toast.LENGTH_SHORT).show();
-                    markersDao.create(markers);
-                    mList.add(markers);
-                } catch (java.sql.SQLException e) {
-                    e.printStackTrace();
-                }
+                addMarker(address, ll, markersDBHelper);
                 goToLocationZoom(ll, 5);
             }
         });
     }
 
-    private void goToLocation(LatLng latLng) {
-        CameraUpdate update = CameraUpdateFactory.newLatLng(latLng);
-        mGoogleMap.moveCamera(update);
+
+    public void deleteMarker(MarkersDBHelper markersDBHelper, double l1, double l2){
+        try {
+            final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+            DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
+            deleteBuilder.where().eq("markers_lat", l1);
+            deleteBuilder.where().eq("markers_lng", l2);
+            deleteBuilder.delete();
+            Log.i("TAG", "delete");
+            Log.i("TAG", String.valueOf(mList.size()));
+            Toast.makeText(MapsActivity.this, getString(R.string.deleteMarker), Toast.LENGTH_SHORT).show();
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addMarker(Address address, LatLng ll, MarkersDBHelper markersDBHelper){
+        final Markers markers = new Markers();
+        markers.markersTitle = address.getLocality();
+        markers.markersLat = ll.latitude;
+        markers.markersLng = ll.longitude;
+        try {
+            final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+            markersDao.create(markers);
+            mList.add(markers);
+            Toast.makeText(MapsActivity.this, R.string.newMarkerAdd, Toast.LENGTH_SHORT).show();
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        goToLocationZoom(ll, 5);
+    }
+
+    public void mapSettings(GoogleMap map) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        map.setTrafficEnabled(true);
+        map.setIndoorEnabled(true);
+        map.setBuildingsEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setTiltGesturesEnabled(true);
+    }
+
+    public  void getMarkersFromDB(List<Markers> list, Marker marker, GoogleMap mGoogleMap){
+        if (list.size() != 0){
+            for (Markers m: list){
+                double lat = m.markersLat;
+                double lng = m.markersLng;
+                LatLng l = new LatLng(lat, lng);
+                MarkerOptions ooptions = new MarkerOptions().position(l);
+                marker = mGoogleMap.addMarker(ooptions);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(l, 5));
+            }
+        }
     }
 
     private void goToLocationZoom(LatLng latLng, float zoom) {

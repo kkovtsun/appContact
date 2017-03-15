@@ -29,7 +29,6 @@ public class RegistrationActivity extends AppCompatActivity {
         SharedPreferences sharedPrefActiveNow = getSharedPreferences("userInfoActive", Context.MODE_PRIVATE);
         loginPrefActive = sharedPrefActiveNow.getString("username", "");
         passwordPrefActive = sharedPrefActiveNow.getString("password", "");
-
         login = (EditText) findViewById(R.id.editLoginR);
         password = (EditText) findViewById(R.id.editPasswordR);
         repeatPassword = (EditText) findViewById(R.id.editRepeatPasswordR);
@@ -39,9 +38,6 @@ public class RegistrationActivity extends AppCompatActivity {
         String l = login.getText().toString();
         String p = password.getText().toString();
         String rp = repeatPassword.getText().toString();
-
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast;
 
         if (l.equals("")||(p.equals(""))){
             Toast.makeText(this, R.string.inputData, Toast.LENGTH_SHORT).show();
