@@ -113,11 +113,7 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
                 editorActive.putString("password", "");
                 editorActive.apply();
 
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast;
-                CharSequence textError = getString(R.string.logOut);
-                toast = Toast.makeText(this, textError, duration);
-                toast.show();
+                Toast.makeText(this, R.string.logOut, Toast.LENGTH_SHORT).show();;
 
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
@@ -146,7 +142,7 @@ public class WeatherActivity extends AppCompatActivity implements NavigationView
                 t2.setText(item.getLocation().getCountry());
                 t3.setText(item.getLocation().getLocaltime().toString());
                 t4.setText(item.getCurrent().getTempC().toString() + "°C");
-                t5.setText(item.getCurrent().getTempF().toString() + "F");
+                t5.setText(item.getCurrent().getCondition().getText().toString());
                 String s = response.body().getCurrent().getCondition().getIcon();
                 s = "http:"+s;
                 Picasso.with(getApplicationContext()).load(s).into(imageView);

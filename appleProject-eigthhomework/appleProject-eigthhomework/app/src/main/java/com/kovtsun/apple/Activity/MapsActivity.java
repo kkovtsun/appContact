@@ -51,6 +51,7 @@ import com.kovtsun.apple.R;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, LocationListener, GoogleApiClient.OnConnectionFailedListener {
     private String loginPrefActive = "", passwordPrefActive = "";
@@ -83,7 +84,9 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
         if (googleServicesAvailable()) {
-            initMap();
+            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+            mapFragment.getMapAsync(this);
+            mGoogleMap = mapFragment.getMap();
         }
         location_tf = (EditText) findViewById(R.id.TFaddress);
 
@@ -109,52 +112,33 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-            @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                View v = getLayoutInflater().inflate(R.layout.markers_info, null);
-                TextView loc = (TextView) v.findViewById(R.id.locality);
-                loc.setText(marker.getTitle());
-
-                return null;
-            }
-        });
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
         mGoogleApiClient.connect();
         mapSettings(mGoogleMap);
         LatLng latLng = new LatLng(imHereLocation.getLatitude(), imHereLocation.getLongitude());
-        MarkerOptions options = new MarkerOptions().position(latLng);
+        MarkerOptions options = new MarkerOptions().position(latLng).title("I'm here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         marker = mGoogleMap.addMarker(options);
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+        marker.showInfoWindow();
 
-        getMarkersFromDB(mList, marker, mGoogleMap);
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
+        getMarkersFromDB(mList, mGoogleMap);
 
         if (mGoogleMap != null) {
             mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
                     Geocoder geocoder = new Geocoder(MapsActivity.this);
-                    LatLng ll = marker.getPosition();
+                    LatLng latLng = marker.getPosition();
                     List<Address> addressList = null;
                     try {
-                        addressList = geocoder.getFromLocation(ll.latitude, ll.longitude, 1);
+                        addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     Address address = addressList.get(0);
-                    double l1 = marker.getPosition().latitude;
-                    double l2 = marker.getPosition().longitude;
-                    deleteMarker(markersDBHelper, l1, l2);
+                    String title = address.getAddressLine(0);
                     marker.remove();
+                    deleteMarker(markersDBHelper, title);
                     return true;
                 }
             });
@@ -163,44 +147,50 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                mGoogleMap.addMarker(new MarkerOptions().position(latLng));
-                Geocoder geocoder = new Geocoder(MapsActivity.this);
-                LatLng ll = marker.getPosition();
-                List<Address> addressList = null;
+                Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
                 try {
-                    addressList = geocoder.getFromLocation(ll.latitude, ll.longitude, 1);
+                    List<Address> addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                    Address address = addressList.get(0);
+                    setMarker(address.getAddressLine(0), latLng);
+                    addMarker(address, latLng, markersDBHelper);
+                    goToLocationZoom(latLng, 5);
+                    mGoogleMap.addMarker( new MarkerOptions().position(latLng).title(address.getAddressLine(1)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Address address = addressList.get(0);
-                setMarker(address.getLocality(), ll);
-                addMarker(address, ll, markersDBHelper);
-                goToLocationZoom(ll, 5);
             }
         });
     }
 
-
-    public void deleteMarker(MarkersDBHelper markersDBHelper, double l1, double l2){
-        try {
-            final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
-            DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
-            deleteBuilder.where().eq("markers_lat", l1);
-            deleteBuilder.where().eq("markers_lng", l2);
-            deleteBuilder.delete();
-            Log.i("TAG", "delete");
-            Log.i("TAG", String.valueOf(mList.size()));
-            Toast.makeText(MapsActivity.this, getString(R.string.deleteMarker), Toast.LENGTH_SHORT).show();
-        } catch (java.sql.SQLException e) {
-            e.printStackTrace();
+    public void deleteMarker(MarkersDBHelper markersDBHelper, String title){
+        int id = 0;
+        if (mList.size() != 0){
+            for (Markers m: mList) {
+                if (m.getMarkersTitle() != null) {
+                    if (m.markersTitle.equals(title)) {
+                        id = m.markersId;
+                        try {
+                            final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+                            DeleteBuilder<Markers, Integer> deleteBuilder = markersDao.deleteBuilder();
+                            deleteBuilder.where().eq("markers_id", id);
+                            deleteBuilder.delete();
+                        } catch (java.sql.SQLException e) {
+                            e.printStackTrace();
+                        }
+                        mList.remove(m);
+                        break;
+                    }
+                }
+            }
         }
+        Toast.makeText(MapsActivity.this, getString(R.string.deleteMarker), Toast.LENGTH_SHORT).show();
     }
 
-    public void addMarker(Address address, LatLng ll, MarkersDBHelper markersDBHelper){
+    public void addMarker(Address address, LatLng latLng, MarkersDBHelper markersDBHelper){
         final Markers markers = new Markers();
-        markers.markersTitle = address.getLocality();
-        markers.markersLat = ll.latitude;
-        markers.markersLng = ll.longitude;
+        markers.markersTitle = address.getAddressLine(0);
+        markers.markersLat = latLng.latitude;
+        markers.markersLng = latLng.longitude;
         try {
             final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
             markersDao.create(markers);
@@ -209,7 +199,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
-        goToLocationZoom(ll, 5);
     }
 
     public void mapSettings(GoogleMap map) {
@@ -224,15 +213,17 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         map.getUiSettings().setTiltGesturesEnabled(true);
     }
 
-    public  void getMarkersFromDB(List<Markers> list, Marker marker, GoogleMap mGoogleMap){
+    public  void getMarkersFromDB(List<Markers> list, GoogleMap mGoogleMap){
         if (list.size() != 0){
             for (Markers m: list){
-                double lat = m.markersLat;
-                double lng = m.markersLng;
-                LatLng l = new LatLng(lat, lng);
-                MarkerOptions ooptions = new MarkerOptions().position(l);
-                marker = mGoogleMap.addMarker(ooptions);
-                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(l, 5));
+                String title = m.markersTitle;
+                if (title != null) {
+                    double lat = m.markersLat;
+                    double lng = m.markersLng;
+                    LatLng latLng = new LatLng(lat, lng);
+                    mGoogleMap.addMarker(new MarkerOptions().title(title).position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    setMarker(title, latLng);
+                }
             }
         }
     }
@@ -265,11 +256,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                 editorActive.putString("password", "");
                 editorActive.apply();
 
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast;
-                CharSequence textError = getString(R.string.logOut);
-                toast = Toast.makeText(this, textError, duration);
-                toast.show();
+                Toast.makeText(this, R.string.logOut, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
@@ -312,7 +299,7 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(this, R.string.noConnection, Toast.LENGTH_SHORT).show();
     }
 
     public void onSearch(View view) {
@@ -355,10 +342,6 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void initMap() {
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
-    }
 
     public boolean googleServicesAvailable() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
