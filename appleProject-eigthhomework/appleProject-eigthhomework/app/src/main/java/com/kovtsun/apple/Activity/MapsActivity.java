@@ -19,8 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -43,6 +43,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.kovtsun.apple.DBHelper.MarkersDBHelper;
 import com.kovtsun.apple.DBHelper.MarkersHelperFactory;
 import com.kovtsun.apple.DBTables.Markers;
@@ -69,6 +70,8 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
     private LocationManager myLocationManager;
     private MyLocationListener locationListener;
     private static Location imHereLocation;
+    private Address addressLocation = null;
+    private Button btnSearch, btnDelete, btnEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,9 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             mGoogleMap = mapFragment.getMap();
         }
         location_tf = (EditText) findViewById(R.id.TFaddress);
+        btnSearch = (Button) findViewById(R.id.Bsearch);
+        btnDelete = (Button) findViewById(R.id.Bdelete);
+        btnEdit = (Button) findViewById(R.id.Bedit);
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -107,6 +113,56 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         RuntimeExceptionDao<Markers, Integer> markersDao = markersDBHelper.getMarkersRuntimeExceptionDao();
 
         mList = markersDao.queryForAll();
+        btnSearch.setVisibility(View.VISIBLE);
+        btnDelete.setVisibility(View.GONE);
+        btnEdit.setVisibility(View.GONE);
+    }
+
+    public void onEditMap(View view) {
+        if (location_tf.getText().equals("")){
+            Toast.makeText(MapsActivity.this, getString(R.string.nullSearch), Toast.LENGTH_SHORT).show();
+        }else{
+            if (addressLocation != null){
+                String titleBefore = addressLocation.getAddressLine(0);
+                String titleAfter = location_tf.getText().toString();
+                editMarker(markersDBHelper, titleBefore, titleAfter);
+                mGoogleMap.clear();
+                LatLng latLng = new LatLng(imHereLocation.getLatitude(), imHereLocation.getLongitude());
+                MarkerOptions options = new MarkerOptions().position(latLng).title("I'm here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                marker = mGoogleMap.addMarker(options);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+                marker.showInfoWindow();
+                getMarkersFromDB(mList, mGoogleMap);
+                btnSearch.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.GONE);
+                btnEdit.setVisibility(View.GONE);
+                location_tf.setText("");
+            }
+
+        }
+    }
+
+    public void onDeleteMap(View view) {
+        if (location_tf.getText().equals("")){
+            Toast.makeText(MapsActivity.this, getString(R.string.nullSearch), Toast.LENGTH_SHORT).show();
+        }else{
+            if (addressLocation != null){
+                String title = addressLocation.getAddressLine(0);
+                deleteMarker(markersDBHelper, title);
+                mGoogleMap.clear();
+                LatLng latLng = new LatLng(imHereLocation.getLatitude(), imHereLocation.getLongitude());
+                MarkerOptions options = new MarkerOptions().position(latLng).title("I'm here").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                marker = mGoogleMap.addMarker(options);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+                marker.showInfoWindow();
+                getMarkersFromDB(mList, mGoogleMap);
+                btnSearch.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.GONE);
+                btnEdit.setVisibility(View.GONE);
+                location_tf.setText("");
+            }
+
+        }
     }
 
     @Override
@@ -127,7 +183,8 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
             mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+                    marker.showInfoWindow();
+                    Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
                     LatLng latLng = marker.getPosition();
                     List<Address> addressList = null;
                     try {
@@ -135,31 +192,74 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Address address = addressList.get(0);
-                    String title = address.getAddressLine(0);
-                    marker.remove();
-                    deleteMarker(markersDBHelper, title);
+                    addressLocation = addressList.get(0);
+                    location_tf.setText(addressLocation.getAddressLine(0));
+                    btnSearch.setVisibility(View.GONE);
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnEdit.setVisibility(View.VISIBLE);
                     return true;
                 }
             });
         }
 
-        mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
-                try {
-                    List<Address> addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                    Address address = addressList.get(0);
-                    setMarker(address.getAddressLine(0), latLng);
-                    addMarker(address, latLng, markersDBHelper);
-                    goToLocationZoom(latLng, 5);
-                    mGoogleMap.addMarker( new MarkerOptions().position(latLng).title(address.getAddressLine(1)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (mGoogleMap != null){
+            mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    btnSearch.setVisibility(View.VISIBLE);
+                    btnDelete.setVisibility(View.GONE);
+                    btnEdit.setVisibility(View.GONE);
+                    location_tf.setText("");
+                }
+            });
+        }
+
+        if (mGoogleMap != null) {
+            mGoogleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+                    try {
+                        List<Address> addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                        Address address = addressList.get(0);
+                        setMarker(address.getAddressLine(0), latLng);
+                        addMarker(address, latLng, markersDBHelper);
+                        mGoogleMap.addMarker(new MarkerOptions().position(latLng).title(address.getAddressLine(1)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                        goToLocationZoom(latLng, 5);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });;
+        }
+    }
+
+    public void editMarker(MarkersDBHelper markersDBHelper, String titleBefore, String titleAfter){
+        int id = 0;
+        if (mList.size() != 0){
+            for (Markers m: mList) {
+                if (m.getMarkersTitle() != null) {
+                    if (m.markersTitle.equals(titleBefore)) {
+                        id = m.markersId;
+                        try {
+                            final Dao<Markers, Integer> markersDao = markersDBHelper.getDao();
+                            UpdateBuilder<Markers, Integer> updateBuilder = markersDao.updateBuilder();
+                            updateBuilder.updateColumnValue("markers_title", titleAfter);
+                            updateBuilder.where().eq("markers_id", id);
+                            updateBuilder.update();
+                            Log.i("TAG", m.markersTitle);
+                        } catch (java.sql.SQLException e) {
+                            e.printStackTrace();
+                        }
+                        mList.remove(m);
+                        m.markersTitle = titleAfter;
+                        mList.add(m);
+                        break;
+                    }
                 }
             }
-        });
+        }
+        Toast.makeText(MapsActivity.this, getString(R.string.editMarker), Toast.LENGTH_SHORT).show();
     }
 
     public void deleteMarker(MarkersDBHelper markersDBHelper, String title){
@@ -302,7 +402,10 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         Toast.makeText(this, R.string.noConnection, Toast.LENGTH_SHORT).show();
     }
 
-    public void onSearch(View view) {
+    public void onSearchMap(View view) {
+        btnSearch.setVisibility(View.VISIBLE);
+        btnDelete.setVisibility(View.GONE);
+        btnEdit.setVisibility(View.GONE);
         String location = location_tf.getText().toString();
         List<Address> addressList = null;
         if (location.equals("")){

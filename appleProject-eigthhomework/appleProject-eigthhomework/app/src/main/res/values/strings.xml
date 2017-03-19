@@ -40,6 +40,7 @@
     <string name="google_maps_key">AIzaSyD84yVf9Ggr3eiaGua0wiF1vPwvN_zvjNA</string>
     <string name="newMarkerAdd">"New marker was added!"</string>
     <string name="deleteMarker">Delete marker was complited!</string>
+    <string name="editMarker">Edit marker was complited!</string>
     <string name="nullMarker">Please, choose marker!</string>
     <string name="nullSearch">Please, enter the name!</string>
 
